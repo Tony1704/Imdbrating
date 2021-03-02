@@ -1,7 +1,9 @@
 # Imdbrating
 Predicting imdb ratings with machine learning
 
-tt6723592 tenet
+nm0001877 hans zimmer
+tt0816692 interstellar
+tt0482571 the prestige
 nm0634240 chris nolan
 
 bedingungen:
