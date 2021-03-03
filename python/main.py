@@ -1,8 +1,9 @@
 import database_connector
 
 
-def main():
+def databasetesting():
     print("test")
 
 
-main()
+if __name__ == '__main__':
+    databasetesting()
