@@ -1,3 +1,6 @@
+import database_connector as DataBase
+
+
 class Actor:
     nconst = ""
     ordering = 0
@@ -9,3 +12,7 @@ class Actor:
             self.ordering = actordata[1]
             self.category = actordata[2]
 
+    def getName(self):
+        db = DataBase.DataBase()
+        person = db.get_person_by_id(self.nconst)
+        return person[1]

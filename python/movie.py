@@ -29,4 +29,4 @@ class Movie:
                 self.actors.append(actor.Actor(actordata))
 
     def getAsString(self):
-        return self.title + " (" + str(self.startYear) +") Länge: " + str(self.runtimeMinutes) + "min Genres: " + str(self.genres) + " Bewertung: " + str(self.averageRating) + " mit " + str(self.numVotes) + " Bewertungen"
+        return self.title + " (" + str(self.startYear) +") Länge: " + str(self.runtimeMinutes) + "min Genres: " + str(self.genres) + " Bewertung: " + str(self.averageRating) + " mit " + str(self.numVotes) + " Bewertungen."
