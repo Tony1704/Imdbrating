@@ -8,7 +8,7 @@ class DataBase:
     # Connect to MariaDB Platform
     def __init__(self):
         try:
-            conn = mariadb.connect(
+            self.conn = mariadb.connect(
                 user="root",
                 password=geheim.pw,
                 host="localhost",
@@ -21,9 +21,9 @@ class DataBase:
             sys.exit(1)
 
         # Get Cursor
-        self.cur = conn.cursor()
+        self.cur = self.conn.cursor()
 
-    def get_person_by_id(self,id):
+    def get_person_by_id(self, id):
         cur = self.cur
         cur.execute(
             "SELECT * FROM person WHERE nconst=?",
@@ -31,10 +31,29 @@ class DataBase:
         for line in cur:
             return line
 
-    def get_person_by_name(self,name):
-        cur= self.cur
+    def get_all_person_id(self):
+        cur = self.cur
+        cur.execute(
+            "SELECT distinct person.nconst FROM person inner join titleprincipals on person.nconst = "
+            "titleprincipals.nconst INNER JOIN valid_movies ON valid_movies.tconst = titleprincipals.tconst "
+            )
+        query = []
+        for line in cur:
+            query.append(line[0])
+        return query
+
+    def get_person_by_name(self, name):
+        cur = self.cur
         cur.execute(
             "SELECT * FROM person WHERE primaryName=?",
+            (name,))
+        for line in cur:
+            return line
+
+    def get_person_id_by_name(self, name):
+        cur = self.cur
+        cur.execute(
+            "SELECT nconst FROM person WHERE primaryName=?",
             (name,))
         for line in cur:
             return line
@@ -59,7 +78,7 @@ class DataBase:
             query.append(line)
         return query
 
-    def get_crew_of_movie(self,tconst):
+    def get_crew_of_movie(self, tconst):
         cur = self.cur
         cur.execute(
             "select titleprincipals.nconst,titleprincipals.ordering,titleprincipals.category from titleprincipals where "
@@ -72,5 +91,5 @@ class DataBase:
 
     # select nconst,ordering,category,t.tconst,startYear,averageRating from titlebasic inner join titleratings on titleratings.tconst = titlebasic.tconst inner join titleprincipals t on titlebasic.tconst = t.tconst where titlebasic.titleType = 'movie' and titleratings.numVotes > 50000
 
-    def test(self):
-        print("test2")
+    def closeConnection(self):
+        self.conn.close()
