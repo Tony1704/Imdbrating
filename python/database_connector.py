@@ -36,7 +36,7 @@ class DataBase:
         cur.execute(
             "SELECT distinct person.nconst FROM person inner join titleprincipals on person.nconst = "
             "titleprincipals.nconst INNER JOIN valid_movies ON valid_movies.tconst = titleprincipals.tconst "
-            )
+        )
         query = []
         for line in cur:
             query.append(line[0])
@@ -61,7 +61,7 @@ class DataBase:
     def get_top_rated_movies(self):
         cur = self.cur
         cur.execute(
-            "SELECT * FROM imdb.top_rated_movies LIMIT 1000",
+            "SELECT * FROM imdb.top_rated_movies LIMIT 40",
             ())
         query = []
         for line in cur:
@@ -86,6 +86,55 @@ class DataBase:
             (tconst,))
         query = []
         for line in cur:
+            query.append(line)
+        return query
+
+    def show_tables(self):
+        """Retrieves the list of tables from the database"""
+
+        table_list = []
+
+        # Retrieve Contacts
+        self.cur.execute("SHOW TABLES")
+
+        for (table,) in self.cur.fetchall():
+            table_list.append(table)
+
+        return table_list
+
+    # Get field info from cursor
+    def get_field_info(self, cur):
+        """Retrieves the field info associated with a cursor"""
+
+        field_info = mariadb.fieldinfo()
+
+        field_info_text = []
+
+        # Retrieve Column Information
+        for column in cur.description:
+            column_name = column[0]
+            column_type = field_info.type(column)
+            column_flags = field_info.flag(column)
+
+            field_info_text.append(f"{column_name}: {column_type} {column_flags}")
+
+        return field_info_text
+
+    # Get field info from cursor
+    def get_table_field_info(self, table):
+        """Retrieves the field info associated with a table"""
+
+        # Fetch Table Information
+        self.cur.execute(f"SELECT * FROM {table} LIMIT 1")
+
+        field_info_text = self.get_field_info(self.cur)
+
+        return field_info_text
+
+    def sql(self, statement):
+        self.cur.execute(statement)
+        query = []
+        for line in self.cur:
             query.append(line)
         return query
 
