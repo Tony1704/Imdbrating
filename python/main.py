@@ -42,6 +42,10 @@ def labelBinariser(movies):
     print(lb.fit_transform(nconsts))
     print(lb.transform(['nm0051659, nm2860379']))
 
+def printallmovies(movies):
+    for movie in movies:
+        print(movie.getAsList())
+
 
 def loadDataBase():
     db = database_connector.DataBase()
@@ -55,4 +59,4 @@ def loadDataBase():
 
 
 if __name__ == '__main__':
-    labelBinariser(loadDataBase())
+    printallmovies(loadDataBase())
