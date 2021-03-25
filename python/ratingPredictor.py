@@ -1,3 +1,7 @@
+import sys
+import time
+from functools import reduce
+
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
 
@@ -5,14 +9,15 @@ from python import database_connector
 from sklearn import preprocessing
 import numpy as np
 
+
 class ratingPredictor:
 
     def __init__(self, movies):
         self.movies = movies
 
     def learn(self):
-        nnmovies = self.prepareMoviesForNN()
-        ratings = self.getYValues()
+        nnmovies = self._prepareMoviesForNN()
+        ratings = self._getYValues()
         nn = MLPClassifier(hidden_layer_sizes=200, activation="tanh", solver="sgd", verbose=True, max_iter=3000)
         x = []
         y = []
@@ -21,17 +26,25 @@ class ratingPredictor:
         for rating in ratings:
             y.append(int(rating))
         x_train, x_test, y_train, y_test = train_test_split(x, y, random_state=1, test_size=0.3)
-        print(x_test, y_test)
+        print("Training started...")
         nn.fit(x_train, y_train)
-        print(nn.out_activation_)
+        print("Training done.")
+        print("Test score is:")
         print(nn.score(x_test, y_test))
         return nn
 
-    def getYValues(self):
+    def _getYValues(self):
         y = []
         for movie in self.movies:
             y.append(movie.averageRating)
         return y
+
+    def _secondsToStr(self, t):
+        return "%d:%02d:%02d.%03d" % reduce(lambda ll, b: divmod(ll[0], b) + ll[1:], [(t * 1000,), 1000, 60, 60])
+
+    def _print_progress(self,p, start_time):
+        sys.stdout.write("\r" + str(p) + "% \t Time elapsed: " + self._secondsToStr(time.time() - start_time) + "s")
+        sys.stdout.flush()
 
     def getAllGenres(self):
         genres = []
@@ -43,7 +56,7 @@ class ratingPredictor:
                     genres.append(genre)
         return genres
 
-    def personIdEncoder(self):
+    def _personIdEncoder(self):
         db = database_connector.DataBase()
         nconsts = db.get_all_person_id()
         lb = preprocessing.LabelEncoder()
@@ -61,24 +74,28 @@ class ratingPredictor:
                     roles.append(actor.category)
         return roles
 
-    def binariseRoles(self):
+    def _binariseRoles(self):
         roles = self.getAllRoles()
         lb = preprocessing.LabelBinarizer()
         lb.fit(roles)
         return lb
 
-    def binariseGenres(self):
+    def _binariseGenres(self):
         genres = self.getAllGenres()
         lb = preprocessing.LabelBinarizer()
         lb.fit(genres)
         return lb
 
-    def prepareMoviesForNN(self):
+    def _prepareMoviesForNN(self):
         movies = self.movies
         mlmovies = []
-        genresBinarizer = self.binariseGenres()
-        roleBinarizer = self.binariseRoles()
-        personEncoder = self.personIdEncoder()
+        genresBinarizer = self._binariseGenres()
+        roleBinarizer = self._binariseRoles()
+        personEncoder = self._personIdEncoder()
+        start_time = time.time()
+        counter = 1
+        total = len(movies)
+        print("Converting data...")
         for movie in movies:
             genre1 = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
             genre2 = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
@@ -94,7 +111,8 @@ class ratingPredictor:
             actors = []
             for i in range(10):
                 try:
-                    personId = personEncoder.transform([movie.actors[i].nconst])[0]
+                    #personId = personEncoder.transform([movie.actors[i].nconst])[0]
+                    personId= movie.actors[i].rating
                     # array = np.array([personId])
                     ordering = movie.actors[i].ordering
                     roleArray = roleBinarizer.transform([movie.actors[i].category])[0]
@@ -105,12 +123,20 @@ class ratingPredictor:
                     array = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
                     # array = np.array([0])
                     actors.append(array)
-            mlmovie = np.array([movie.startYear, movie.runtimeMinutes])
+            mlmovie = np.array([movie.startYear, movie.runtimeMinutes, movie.numVotes])
             mlmovie = np.concatenate((mlmovie, genre))
             for actor in actors:
                 mlmovie = np.concatenate((mlmovie, actor))
             mlmovies.append(mlmovie)
+            percentage = (counter / total) * 100
+            self._print_progress(round(percentage, 2), start_time)
+            counter = counter + 1
+        print("\nData converted.")
         return mlmovies
+
+
+
+
 
     def printallmovies(self):
         for movie in self.movies:

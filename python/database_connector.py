@@ -31,6 +31,16 @@ class DataBase:
         for line in cur:
             return line
 
+    def update_avg_rating(self, nconst, avgrating):
+        cur = self.cur
+        try:
+            cur.execute(
+                "UPDATE person SET person.averageRating = ? WHERE person.nconst = ?", (avgrating,nconst)
+            )
+            self.conn.commit()
+        except mariadb.Error as e:
+            print(f"Error: {e}")
+
     def get_all_person_id(self):
         cur = self.cur
         cur.execute(
@@ -49,6 +59,14 @@ class DataBase:
             (name,))
         for line in cur:
             return line
+
+    def get_averagerating_by_id(self, nconst):
+        cur = self.cur
+        cur.execute(
+            "SELECT AVG(averageRating) FROM titleprincipals INNER JOIN valid_movies ON valid_movies.tconst = titleprincipals.tconst WHERE titleprincipals.nconst = ? GROUP BY titleprincipals.nconst",
+            (nconst,))
+        for line in cur:
+            return round(line[0], 2)
 
     def get_person_id_by_name(self, name):
         cur = self.cur
@@ -81,8 +99,7 @@ class DataBase:
     def get_crew_of_movie(self, tconst):
         cur = self.cur
         cur.execute(
-            "select titleprincipals.nconst,titleprincipals.ordering,titleprincipals.category from titleprincipals where "
-            "titleprincipals.tconst=? order by titleprincipals.ordering",
+            "select titleprincipals.nconst,titleprincipals.ordering,titleprincipals.category, person.averageRating from titleprincipals INNER JOIN person ON titleprincipals.nconst = person.nconst where titleprincipals.tconst=? order by titleprincipals.ordering",
             (tconst,))
         query = []
         for line in cur:

@@ -1,3 +1,7 @@
+import sys
+import time
+from functools import reduce
+
 import database_connector
 import movie
 import numpy as np
@@ -36,16 +40,31 @@ def printallmovies(movies):
         print(movie.getAsList())
 
 
+def _secondsToStr(t):
+    return "%d:%02d:%02d.%03d" % reduce(lambda ll, b: divmod(ll[0], b) + ll[1:], [(t * 1000,), 1000, 60, 60])
 
+def _print_progress(p, start_time):
+    sys.stdout.write("\r" + str(p) + "% \t Time elapsed: " + _secondsToStr(time.time() - start_time) + "s")
+    sys.stdout.flush()
 
 def loadDataBase():
+    start_time = time.time()
+    counter = 1
+
     db = database_connector.DataBase()
     movies = []
-    for line in db.get_valid_movies():
+    print("Loading Database...")
+    query = db.get_valid_movies()
+    total = len(query)
+    for line in query:
         newMovie = movie.Movie(line)
         newMovie.addActors(db.get_crew_of_movie(newMovie.id))
         movies.append(newMovie)
+        percentage = (counter / total) * 100
+        _print_progress(round(percentage, 2), start_time)
+        counter = counter + 1
     db.closeConnection()
+    print("\nDatabase loaded.")
     return movies
 
 
@@ -59,13 +78,30 @@ def createMovie(startYear, runtime, genre1, genre2, genre3):
     newMovie = movie.Movie(array)
     return newMovie
 
+def updateAvgRatings():
+    start_time = time.time()
+    counter = 1
+    db = database_connector.DataBase()
+    personids = db.get_all_person_id()
+    print(personids)
+    total = len(personids)
+    for person in personids:
+        avgRating = db.get_averagerating_by_id(person)
+        db.update_avg_rating(person,avgRating)
+        percentage = (counter / total) * 100
+        _print_progress(round(percentage, 2), start_time)
+        counter = counter + 1
+
+
 if __name__ == '__main__':
     ratingPredictor = ratingPredictor.ratingPredictor(loadDataBase()).learn()
-    ourMovie = createMovie(1995,142,"Drama","","")
-    ourMovie.addCrewByName("Frank Darabont","director")
-    ourMovie.addCrewByName("Morgan Freeman", "actor")
-    ourMovie.addCrewByName("Tim Robbins", "actor")
-    print(ourMovie.genres)
+    #loadDataBase()
+    #ourMovie = createMovie(1995,142,"Drama","","")
+    #ourMovie.addCrewByName("Frank Darabont","director")
+    #ourMovie.addCrewByName("Morgan Freeman", "actor")
+    #ourMovie.addCrewByName("Tim Robbins", "actor")
+    #print(ourMovie.genres)
+
 
 
 

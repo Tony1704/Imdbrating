@@ -3,10 +3,11 @@ import database_connector as DataBase
 
 class Actor:
     def __init__(self,actordata):
-        if len(actordata) == 3:
+        if len(actordata) == 4:
             self.nconst = actordata[0]
             self.ordering = actordata[1]
             self.category = actordata[2]
+            self.rating = actordata[3]
         else:
             print("Something was wrong with the Actor")
 
@@ -18,3 +19,4 @@ class Actor:
 
     def getAsList(self):
         return [self.nconst, self.ordering, self.category]
+
