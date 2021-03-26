@@ -50,7 +50,7 @@ def _print_progress(p, start_time):
 def loadDataBase():
     start_time = time.time()
     counter = 1
-
+    odd = True
     db = database_connector.DataBase()
     movies = []
     print("Loading Database...")
@@ -61,8 +61,13 @@ def loadDataBase():
         newMovie.addActors(db.get_crew_of_movie(newMovie.id))
         movies.append(newMovie)
         percentage = (counter / total) * 100
-        _print_progress(round(percentage, 2), start_time)
-        counter = counter + 1
+        if (odd == True):
+            _print_progress(round(percentage, 2), start_time)
+            counter = counter + 1
+            odd = False
+        else:
+            odd = True
+            counter = counter + 1
     db.closeConnection()
     print("\nDatabase loaded.")
     return movies
