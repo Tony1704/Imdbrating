@@ -2,10 +2,13 @@ import sys
 import time
 from functools import reduce
 
+from networkx.drawing.tests.test_pylab import plt
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
+from sklearn import tree
+from sklearn.preprocessing import StandardScaler
 
-from python import database_connector
+import database_connector
 from sklearn import preprocessing
 import numpy as np
 
@@ -14,11 +17,16 @@ class ratingPredictor:
 
     def __init__(self, movies):
         self.movies = movies
+        self.clf = None
 
-    def learn(self):
+    def learn(self, neuralnetwork=False):
         nnmovies = self._prepareMoviesForNN()
         ratings = self._getYValues()
-        nn = MLPClassifier(hidden_layer_sizes=200, activation="tanh", solver="sgd", verbose=True, max_iter=3000)
+        scaler = StandardScaler()
+        if (neuralnetwork):
+            clf = MLPClassifier(hidden_layer_sizes=200, activation="tanh", solver="sgd", verbose=True, max_iter=3000)
+        else:
+            clf = tree.DecisionTreeClassifier()
         x = []
         y = []
         for line in nnmovies:
@@ -26,12 +34,23 @@ class ratingPredictor:
         for rating in ratings:
             y.append(int(rating))
         x_train, x_test, y_train, y_test = train_test_split(x, y, random_state=1, test_size=0.3)
+        scaler.fit(x_train)
+        x_train = scaler.transform(x_train)
+        x_test = scaler.transform(x_test)
+        #scaler.fit(y_train)
+        #y_train = scaler.transform(y_train)
+        #y_test = scaler.transform(y_test)
         print("Training started...")
-        nn.fit(x_train, y_train)
+        clf.fit(x_train, y_train)
         print("Training done.")
         print("Test score is:")
-        print(nn.score(x_test, y_test))
-        return nn
+        print(clf.score(x_test, y_test))
+        self.clf = clf
+        return clf
+
+    def predictMovie(self, movie):
+        nnmovie = self._prepareMoviesForNN([movie])
+        return self.clf.predict(nnmovie)
 
     def _getYValues(self):
         y = []
@@ -86,8 +105,11 @@ class ratingPredictor:
         lb.fit(genres)
         return lb
 
-    def _prepareMoviesForNN(self):
-        movies = self.movies
+    def _prepareMoviesForNN(self, singlemovie=None):
+        if singlemovie != None:
+            movies = singlemovie
+        else:
+            movies = self.movies
         mlmovies = []
         genresBinarizer = self._binariseGenres()
         roleBinarizer = self._binariseRoles()

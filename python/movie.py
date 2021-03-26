@@ -29,6 +29,7 @@ class Movie:
     def addCrewByName(self, name, role):
         db = DatabaseConnector.DataBase()
         nconst = db.get_person_id_by_name(name)
+        avgrating = db.get_averagerating_by_id(nconst[0])
         if nconst[0] is None:
             print("Actor not found!")
             return
@@ -37,7 +38,7 @@ class Movie:
             if ordering > 10:
                 print("Too many Actors in Movie " + self.title)
             else:
-                actordata = [nconst[0],ordering,role]
+                actordata = [nconst[0],ordering,role,avgrating]
                 self.actors.append(actor.Actor(actordata))
         db.closeConnection()
 

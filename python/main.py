@@ -68,13 +68,13 @@ def loadDataBase():
     return movies
 
 
-def createMovie(startYear, runtime, genre1, genre2, genre3):
+def createMovie(startYear, runtime, genre1, genre2, genre3, numVotes):
     genres = "" + genre1
     if genre2 != "":
         genres = genres + "," + genre2
     if genre3 != "":
         genres = genres + "," + genre3
-    array = [0,"",startYear, runtime,genres,0,0]
+    array = [0,"",startYear, runtime,genres,0,numVotes]
     newMovie = movie.Movie(array)
     return newMovie
 
@@ -94,13 +94,12 @@ def updateAvgRatings():
 
 
 if __name__ == '__main__':
-    ratingPredictor = ratingPredictor.ratingPredictor(loadDataBase()).learn()
+    ratingPredictor = ratingPredictor.ratingPredictor(loadDataBase())
+    ratingPredictor.learn()
     #loadDataBase()
-    #ourMovie = createMovie(1995,142,"Drama","","")
-    #ourMovie.addCrewByName("Frank Darabont","director")
-    #ourMovie.addCrewByName("Morgan Freeman", "actor")
-    #ourMovie.addCrewByName("Tim Robbins", "actor")
-    #print(ourMovie.genres)
+    ourMovie = createMovie(2020,200,"Comedy","","",190000)
+    ourMovie.addCrewByName("Adam Sandler", "actor")
+    print(ratingPredictor.predictMovie(ourMovie))
 
 
 
