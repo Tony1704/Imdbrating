@@ -68,13 +68,13 @@ def loadDataBase():
     return movies
 
 
-def createMovie(startYear, runtime, genre1, genre2, genre3, numVotes):
+def createMovie(title,startYear, runtime, genre1, genre2, genre3, numVotes):
     genres = "" + genre1
     if genre2 != "":
         genres = genres + "," + genre2
     if genre3 != "":
         genres = genres + "," + genre3
-    array = [0,"",startYear, runtime,genres,0,numVotes]
+    array = [0,title,startYear, runtime,genres,0,numVotes]
     newMovie = movie.Movie(array)
     return newMovie
 
