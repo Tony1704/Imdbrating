@@ -100,7 +100,8 @@ def updateAvgRatings():
 
 if __name__ == '__main__':
     ratingPredictor = ratingPredictor.ratingPredictor(loadDataBase())
-    ratingPredictor.learn()
+    ratingPredictor.learn(neuralnetwork=False)
+    #print(ratingPredictor.plot_ratings())
     #loadDataBase()
     ourMovie = createMovie("Random Film",2020,200,"Comedy","","",190000)
     ourMovie.addCrewByName("Adam Sandler", "actor")

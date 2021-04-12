@@ -6,6 +6,7 @@ from networkx.drawing.tests.test_pylab import plt
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
 from sklearn import tree
+from sklearn import svm
 from sklearn.preprocessing import StandardScaler
 
 import database_connector
@@ -16,6 +17,8 @@ import numpy as np
 class ratingPredictor:
 
     def __init__(self, movies):
+        self.y_test = None
+        self.x_test = None
         self.movies = movies
         self.clf = None
 
@@ -27,6 +30,7 @@ class ratingPredictor:
             clf = MLPClassifier(hidden_layer_sizes=200, activation="tanh", solver="sgd", verbose=True, max_iter=3000)
         else:
             clf = tree.DecisionTreeClassifier()
+        #clf = svm.SVC()
         x = []
         y = []
         for line in nnmovies:
@@ -37,6 +41,8 @@ class ratingPredictor:
         scaler.fit(x_train)
         x_train = scaler.transform(x_train)
         x_test = scaler.transform(x_test)
+        self.x_test = x_test
+        self.y_test = y_test
         #scaler.fit(y_train)
         #y_train = scaler.transform(y_train)
         #y_test = scaler.transform(y_test)
@@ -57,6 +63,18 @@ class ratingPredictor:
         for movie in self.movies:
             y.append(movie.averageRating)
         return y
+
+    def plot_ratings(self):
+        y = []
+        values = self._getYValues()
+        x = [1,2,3,4,5,6,7,8,9]
+        for i in x:
+            count = 0
+            for j in range(10):
+                j = i + 0.1*j
+                count = count + values.count(j)
+            y.append(count)
+        return x,y
 
     def _secondsToStr(self, t):
         return "%d:%02d:%02d.%03d" % reduce(lambda ll, b: divmod(ll[0], b) + ll[1:], [(t * 1000,), 1000, 60, 60])
