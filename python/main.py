@@ -102,7 +102,7 @@ if __name__ == '__main__':
     ratingPredictor = ratingPredictor.ratingPredictor(loadDataBase())
     ratingPredictor.learn()
     #loadDataBase()
-    ourMovie = createMovie(2020,200,"Comedy","","",190000)
+    ourMovie = createMovie("Random Film",2020,200,"Comedy","","",190000)
     ourMovie.addCrewByName("Adam Sandler", "actor")
     print(ratingPredictor.predictMovie(ourMovie))
 
