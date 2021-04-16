@@ -86,6 +86,7 @@ class DataBase:
             query.append(line)
         return query
 
+
     def get_valid_movies(self):
         cur = self.cur
         cur.execute(

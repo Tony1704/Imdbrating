@@ -8,6 +8,7 @@ import numpy as np
 from sklearn.neural_network import MLPRegressor, MLPClassifier
 from sklearn.datasets import make_regression
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
 from sklearn import preprocessing
 import ratingPredictor
 
@@ -40,6 +41,7 @@ def printallmovies(movies):
         print(movie.getAsList())
 
 
+# Gibt zeit und prozent aus
 def _secondsToStr(t):
     return "%d:%02d:%02d.%03d" % reduce(lambda ll, b: divmod(ll[0], b) + ll[1:], [(t * 1000,), 1000, 60, 60])
 
@@ -47,6 +49,7 @@ def _print_progress(p, start_time):
     sys.stdout.write("\r" + str(p) + "% \t Time elapsed: " + _secondsToStr(time.time() - start_time) + "s")
     sys.stdout.flush()
 
+#Lädt die Filme aus der Datenbank ins Python Programm, befüllt das array movies
 def loadDataBase():
     start_time = time.time()
     counter = 1
@@ -100,12 +103,24 @@ def updateAvgRatings():
 
 if __name__ == '__main__':
     ratingPredictor = ratingPredictor.ratingPredictor(loadDataBase())
-    ratingPredictor.learn(neuralnetwork=False)
+    ratingPredictor.learn(neuralnetwork=True)
     #print(ratingPredictor.plot_ratings())
     #loadDataBase()
-    ourMovie = createMovie("Random Film",2020,200,"Comedy","","",190000)
-    ourMovie.addCrewByName("Adam Sandler", "actor")
+    ourMovie = createMovie("Daddy Daycare",2002,92,"Action","Drama","Sci-Fi",60067)
+    ourMovie.addCrewByName("John Williams", "actor")
+    ourMovie.addCrewByName("Seth Rogen", "actor")
+    ourMovie.addCrewByName("Jeff Garlin", "actor")
+    ourMovie.addCrewByName("Anjelica Huston", "actress")
+    ourMovie.addCrewByName("Steve Zahn", "actor")
+    #ourMovie.addCrewByName("Steve Carr", "director")
+    ourMovie.addCrewByName("Geoff Rodkey", "writer")
+    ourMovie.addCrewByName("Matt Berenson", "producer")
+    ourMovie.addCrewByName("John Davis", "producer")
+    ourMovie.addCrewByName("Wyck Godfrey", "producer")
+    ourMovie.addCrewByName("David Newman", "composer")
+    print(ourMovie.getAsString())
     print(ratingPredictor.predictMovie(ourMovie))
+
 
 
 

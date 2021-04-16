@@ -8,6 +8,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn import tree
 from sklearn import svm
 from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KNeighborsClassifier
 
 import database_connector
 from sklearn import preprocessing
@@ -17,19 +18,20 @@ import numpy as np
 class ratingPredictor:
 
     def __init__(self, movies):
-        self.y_test = None
-        self.x_test = None
+        self.y_test = []
+        self.x_test = []
         self.movies = movies
         self.clf = None
+        self.scaler = StandardScaler()
 
     def learn(self, neuralnetwork=False):
         nnmovies = self._prepareMoviesForNN()
         ratings = self._getYValues()
-        scaler = StandardScaler()
         if (neuralnetwork):
-            clf = MLPClassifier(hidden_layer_sizes=200, activation="tanh", solver="sgd", verbose=True, max_iter=3000)
+            clf = MLPClassifier(hidden_layer_sizes=50, activation="tanh", solver="sgd", verbose=False, max_iter=3000)
         else:
             clf = tree.DecisionTreeClassifier()
+        #clf = KNeighborsClassifier(n_neighbors=100, weights='distance',n_jobs=-1)
         #clf = svm.SVC()
         x = []
         y = []
@@ -38,9 +40,9 @@ class ratingPredictor:
         for rating in ratings:
             y.append(int(rating))
         x_train, x_test, y_train, y_test = train_test_split(x, y, random_state=1, test_size=0.3)
-        scaler.fit(x_train)
-        x_train = scaler.transform(x_train)
-        x_test = scaler.transform(x_test)
+        self.scaler.fit(x_train)
+        x_train = self.scaler.transform(x_train)
+        x_test = self.scaler.transform(x_test)
         self.x_test = x_test
         self.y_test = y_test
         #scaler.fit(y_train)
@@ -56,7 +58,16 @@ class ratingPredictor:
 
     def predictMovie(self, movie):
         nnmovie = self._prepareMoviesForNN([movie])
+        nnmovie = self.scaler.transform(nnmovie)
         return self.clf.predict(nnmovie)
+
+    def predictAllTestValues(self):
+        y_pred = []
+        y_true = []
+        for i in range(len(self.x_test)):
+            y_pred.append(self.clf.predict([self.x_test[i]])[0])
+            y_true.append(self.y_test[i])
+        return y_pred, y_true
 
     def _getYValues(self):
         y = []
@@ -75,6 +86,7 @@ class ratingPredictor:
                 count = count + values.count(j)
             y.append(count)
         return x,y
+
 
     def _secondsToStr(self, t):
         return "%d:%02d:%02d.%03d" % reduce(lambda ll, b: divmod(ll[0], b) + ll[1:], [(t * 1000,), 1000, 60, 60])
@@ -163,7 +175,7 @@ class ratingPredictor:
                     array = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
                     # array = np.array([0])
                     actors.append(array)
-            mlmovie = np.array([movie.startYear, movie.runtimeMinutes, movie.numVotes])
+            mlmovie = np.array([len(movie.title), movie.startYear, movie.runtimeMinutes, movie.numVotes])
             mlmovie = np.concatenate((mlmovie, genre))
             for actor in actors:
                 mlmovie = np.concatenate((mlmovie, actor))
