@@ -149,9 +149,9 @@ class ratingPredictor:
         total = len(movies)
         print("Converting data...")
         for movie in movies:
-            genre1 = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-            genre2 = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-            genre3 = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+            genre1 = np.zeros(genresBinarizer.classes_.shape[0])
+            genre2 = np.zeros(genresBinarizer.classes_.shape[0])
+            genre3 = np.zeros(genresBinarizer.classes_.shape[0])
             if movie.genres is not None:
                 genre1 = np.array(genresBinarizer.transform([movie.genres[0]])[0])
                 if len(movie.genres) >= 2:
@@ -172,7 +172,7 @@ class ratingPredictor:
                     array = np.concatenate((array, roleArray))
                     actors.append(array)
                 except IndexError:
-                    array = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+                    array = np.zeros(roleBinarizer.classes_.shape[0]+2)
                     # array = np.array([0])
                     actors.append(array)
             mlmovie = np.array([len(movie.title), movie.startYear, movie.runtimeMinutes, movie.numVotes])
