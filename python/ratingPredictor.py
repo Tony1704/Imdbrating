@@ -8,6 +8,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn import tree
 from sklearn import svm
 from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.neighbors import KNeighborsClassifier
 
 import database_connector
@@ -28,11 +29,9 @@ class ratingPredictor:
         nnmovies = self._prepareMoviesForNN()
         ratings = self._getYValues()
         if (neuralnetwork):
-            clf = MLPClassifier(hidden_layer_sizes=50, activation="tanh", solver="sgd", verbose=False, max_iter=3000)
+            clf = MLPClassifier(hidden_layer_sizes=(100,100,100,100), activation="tanh", solver="sgd", verbose=True, max_iter=3000, early_stopping=True, learning_rate='adaptive')
         else:
             clf = tree.DecisionTreeClassifier()
-        #clf = KNeighborsClassifier(n_neighbors=100, weights='distance',n_jobs=-1)
-        #clf = svm.SVC()
         x = []
         y = []
         for line in nnmovies:
