@@ -103,7 +103,7 @@ def updateAvgRatings():
 
 if __name__ == '__main__':
     ratingPredictor = ratingPredictor.ratingPredictor(loadDataBase())
-    ratingPredictor.learn(neuralnetwork=True)
+    ratingPredictor.learn(neuralnetwork=False)
     #print(ratingPredictor.plot_ratings())
     #loadDataBase()
     ourMovie = createMovie("Daddy Daycare",2002,92,"Action","Drama","Sci-Fi",60067)
