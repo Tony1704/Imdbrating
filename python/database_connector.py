@@ -44,7 +44,7 @@ class DataBase:
     def get_all_person_id(self):
         cur = self.cur
         cur.execute(
-            "SELECT distinct person.nconst FROM person inner join titleprincipals on person.nconst = "
+            "SELECT distinct person.nconst, person.averageRating FROM person inner join titleprincipals on person.nconst = "
             "titleprincipals.nconst INNER JOIN valid_movies ON valid_movies.tconst = titleprincipals.tconst "
         )
         query = []

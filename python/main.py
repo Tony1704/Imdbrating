@@ -92,9 +92,10 @@ def updateAvgRatings():
     personids = db.get_all_person_id()
     print(personids)
     total = len(personids)
-    for person in personids:
-        avgRating = db.get_averagerating_by_id(person)
-        db.update_avg_rating(person,avgRating)
+    for person, averageR in personids:
+        if averageR is None:
+            avgRating = db.get_averagerating_by_id(person)
+            db.update_avg_rating(person,avgRating)
         percentage = (counter / total) * 100
         _print_progress(round(percentage, 2), start_time)
         counter = counter + 1
@@ -106,7 +107,7 @@ if __name__ == '__main__':
     #print(ratingPredictor.plot_ratings())
     #loadDataBase()
     ourMovie = createMovie("Daddy Daycare",2002,92,"Action","Drama","Sci-Fi",60067)
-    ourMovie.addCrewByName("John Williams", "actor")
+    #ourMovie.addCrewByName("John Williams", "actor")
     ourMovie.addCrewByName("Seth Rogen", "actor")
     ourMovie.addCrewByName("Jeff Garlin", "actor")
     ourMovie.addCrewByName("Anjelica Huston", "actress")
