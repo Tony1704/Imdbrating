@@ -8,6 +8,7 @@ import numpy as np
 from sklearn.neural_network import MLPRegressor, MLPClassifier
 from sklearn.datasets import make_regression
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
 from sklearn import preprocessing
 import ratingPredictor
 
@@ -39,7 +40,7 @@ def printallmovies(movies):
     for movie in movies:
         print(movie.getAsList())
 
-
+# Gibt zeit und prozent aus
 def _secondsToStr(t):
     return "%d:%02d:%02d.%03d" % reduce(lambda ll, b: divmod(ll[0], b) + ll[1:], [(t * 1000,), 1000, 60, 60])
 
@@ -47,6 +48,7 @@ def _print_progress(p, start_time):
     sys.stdout.write("\r" + str(p) + "% \t Time elapsed: " + _secondsToStr(time.time() - start_time) + "s")
     sys.stdout.flush()
 
+#Lädt die Filme aus der Datenbank ins Python Programm, befüllt das array movies
 def loadDataBase():
     start_time = time.time()
     counter = 1
@@ -90,9 +92,10 @@ def updateAvgRatings():
     personids = db.get_all_person_id()
     print(personids)
     total = len(personids)
-    for person in personids:
-        avgRating = db.get_averagerating_by_id(person)
-        db.update_avg_rating(person,avgRating)
+    for person, averageR in personids:
+        if averageR is None:
+            avgRating = db.get_averagerating_by_id(person)
+            db.update_avg_rating(person,avgRating)
         percentage = (counter / total) * 100
         _print_progress(round(percentage, 2), start_time)
         counter = counter + 1
@@ -100,11 +103,23 @@ def updateAvgRatings():
 
 if __name__ == '__main__':
     ratingPredictor = ratingPredictor.ratingPredictor(loadDataBase())
-    ratingPredictor.learn()
+    ratingPredictor.learn(algorithm='forest')
+    #print(ratingPredictor.plot_ratings())
     #loadDataBase()
-    ourMovie = createMovie(2020,200,"Comedy","","",190000)
-    ourMovie.addCrewByName("Adam Sandler", "actor")
+    ourMovie = createMovie("Wolf ;)",1994,125,"Drama","Horror","Romance",49989)
+    ourMovie.addCrewByName("Jack Nicholson", "actor")
+    ourMovie.addCrewByName("Michelle Pfeiffer", "actress")
+    ourMovie.addCrewByName("James Spader", "actor")
+    ourMovie.addCrewByName("Ennio Morricone", "composer")
+    ourMovie.addCrewByName("Mike Nichols", "director")
+    #ourMovie.addCrewByName("Giuseppe Rotunno", "cinematographer")
+    ourMovie.addCrewByName("Jim Harrison", "writer")
+    #ourMovie.addCrewByName("Kate Nelligan", "actress")
+    ourMovie.addCrewByName("Wesley Strick", "writer")
+    ourMovie.addCrewByName("Douglas Wick", "producer")
+    print(ourMovie.getAsString())
     print(ratingPredictor.predictMovie(ourMovie))
+
 
 
 

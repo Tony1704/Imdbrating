@@ -44,7 +44,7 @@ class DataBase:
     def get_all_person_id(self):
         cur = self.cur
         cur.execute(
-            "SELECT distinct person.nconst FROM person inner join titleprincipals on person.nconst = "
+            "SELECT distinct person.nconst, person.averageRating FROM person inner join titleprincipals on person.nconst = "
             "titleprincipals.nconst INNER JOIN valid_movies ON valid_movies.tconst = titleprincipals.tconst "
         )
         query = []
@@ -85,6 +85,7 @@ class DataBase:
         for line in cur:
             query.append(line)
         return query
+
 
     def get_valid_movies(self):
         cur = self.cur
@@ -130,11 +131,11 @@ class DataBase:
         # Retrieve Column Information
         for column in cur.description:
             column_name = column[0]
-            column_type = field_info.type(column)
-            column_flags = field_info.flag(column)
+            #column_type = field_info.type(column)
+            #column_flags = field_info.flag(column)
 
-            field_info_text.append(f"{column_name}: {column_type} {column_flags}")
-
+            #field_info_text.append(f"{column_name}: {column_type} {column_flags}")
+            field_info_text.append(column_name)
         return field_info_text
 
     # Get field info from cursor

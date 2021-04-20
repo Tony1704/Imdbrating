@@ -6,7 +6,11 @@ from networkx.drawing.tests.test_pylab import plt
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
 from sklearn import tree
+from sklearn.ensemble import RandomForestClassifier
+from sklearn import svm
 from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.neighbors import KNeighborsClassifier
 
 import database_connector
 from sklearn import preprocessing
@@ -16,17 +20,25 @@ import numpy as np
 class ratingPredictor:
 
     def __init__(self, movies):
+        self.y_test = []
+        self.x_test = []
         self.movies = movies
         self.clf = None
+        self.scaler = StandardScaler()
 
-    def learn(self, neuralnetwork=False):
+    # algorithm = tree, neural oder forest
+    def learn(self, algorithm='tree'):
         nnmovies = self._prepareMoviesForNN()
         ratings = self._getYValues()
-        scaler = StandardScaler()
-        if (neuralnetwork):
-            clf = MLPClassifier(hidden_layer_sizes=200, activation="tanh", solver="sgd", verbose=True, max_iter=3000)
-        else:
+        if (algorithm == 'neural'):
+            clf = MLPClassifier(hidden_layer_sizes=(100,100,100,100), activation="tanh", solver="sgd", verbose=True, max_iter=3000, early_stopping=True, learning_rate='adaptive')
+        elif(algorithm == 'tree'):
             clf = tree.DecisionTreeClassifier()
+        elif(algorithm == 'forest'):
+            clf = RandomForestClassifier()
+        else:
+            print("Please choose valid Algortihm: tree, neural or forest. Setting Algorithm to forest...")
+            clf = RandomForestClassifier()
         x = []
         y = []
         for line in nnmovies:
@@ -34,9 +46,11 @@ class ratingPredictor:
         for rating in ratings:
             y.append(int(rating))
         x_train, x_test, y_train, y_test = train_test_split(x, y, random_state=1, test_size=0.3)
-        scaler.fit(x_train)
-        x_train = scaler.transform(x_train)
-        x_test = scaler.transform(x_test)
+        self.scaler.fit(x_train)
+        x_train = self.scaler.transform(x_train)
+        x_test = self.scaler.transform(x_test)
+        self.x_test = x_test
+        self.y_test = y_test
         #scaler.fit(y_train)
         #y_train = scaler.transform(y_train)
         #y_test = scaler.transform(y_test)
@@ -50,13 +64,35 @@ class ratingPredictor:
 
     def predictMovie(self, movie):
         nnmovie = self._prepareMoviesForNN([movie])
+        nnmovie = self.scaler.transform(nnmovie)
         return self.clf.predict(nnmovie)
+
+    def predictAllTestValues(self):
+        y_pred = []
+        y_true = []
+        for i in range(len(self.x_test)):
+            y_pred.append(self.clf.predict([self.x_test[i]])[0])
+            y_true.append(self.y_test[i])
+        return y_pred, y_true
 
     def _getYValues(self):
         y = []
         for movie in self.movies:
             y.append(movie.averageRating)
         return y
+
+    def plot_ratings(self):
+        y = []
+        values = self._getYValues()
+        x = [1,2,3,4,5,6,7,8,9]
+        for i in x:
+            count = 0
+            for j in range(10):
+                j = i + 0.1*j
+                count = count + values.count(j)
+            y.append(count)
+        return x,y
+
 
     def _secondsToStr(self, t):
         return "%d:%02d:%02d.%03d" % reduce(lambda ll, b: divmod(ll[0], b) + ll[1:], [(t * 1000,), 1000, 60, 60])
@@ -119,9 +155,9 @@ class ratingPredictor:
         total = len(movies)
         print("Converting data...")
         for movie in movies:
-            genre1 = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-            genre2 = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-            genre3 = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+            genre1 = np.zeros(genresBinarizer.classes_.shape[0])
+            genre2 = np.zeros(genresBinarizer.classes_.shape[0])
+            genre3 = np.zeros(genresBinarizer.classes_.shape[0])
             if movie.genres is not None:
                 genre1 = np.array(genresBinarizer.transform([movie.genres[0]])[0])
                 if len(movie.genres) >= 2:
@@ -142,10 +178,10 @@ class ratingPredictor:
                     array = np.concatenate((array, roleArray))
                     actors.append(array)
                 except IndexError:
-                    array = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+                    array = np.zeros(roleBinarizer.classes_.shape[0]+2)
                     # array = np.array([0])
                     actors.append(array)
-            mlmovie = np.array([movie.startYear, movie.runtimeMinutes, movie.numVotes])
+            mlmovie = np.array([len(movie.title), movie.startYear, movie.runtimeMinutes, movie.numVotes])
             mlmovie = np.concatenate((mlmovie, genre))
             for actor in actors:
                 mlmovie = np.concatenate((mlmovie, actor))
