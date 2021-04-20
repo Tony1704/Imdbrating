@@ -131,11 +131,11 @@ class DataBase:
         # Retrieve Column Information
         for column in cur.description:
             column_name = column[0]
-            column_type = field_info.type(column)
-            column_flags = field_info.flag(column)
+            #column_type = field_info.type(column)
+            #column_flags = field_info.flag(column)
 
-            field_info_text.append(f"{column_name}: {column_type} {column_flags}")
-
+            #field_info_text.append(f"{column_name}: {column_type} {column_flags}")
+            field_info_text.append(column_name)
         return field_info_text
 
     # Get field info from cursor
