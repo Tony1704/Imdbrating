@@ -103,7 +103,7 @@ def updateAvgRatings():
 
 if __name__ == '__main__':
     ratingPredictor = ratingPredictor.ratingPredictor(loadDataBase())
-    ratingPredictor.learn(neuralnetwork=False)
+    ratingPredictor.learn(algorithm='forest')
     #print(ratingPredictor.plot_ratings())
     #loadDataBase()
     ourMovie = createMovie("Wolf ;)",1994,125,"Drama","Horror","Romance",49989)

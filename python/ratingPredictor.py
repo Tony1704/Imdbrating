@@ -6,6 +6,7 @@ from networkx.drawing.tests.test_pylab import plt
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
 from sklearn import tree
+from sklearn.ensemble import RandomForestClassifier
 from sklearn import svm
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
@@ -25,13 +26,19 @@ class ratingPredictor:
         self.clf = None
         self.scaler = StandardScaler()
 
-    def learn(self, neuralnetwork=False):
+    # algorithm = tree, neural oder forest
+    def learn(self, algorithm='tree'):
         nnmovies = self._prepareMoviesForNN()
         ratings = self._getYValues()
-        if (neuralnetwork):
+        if (algorithm == 'neural'):
             clf = MLPClassifier(hidden_layer_sizes=(100,100,100,100), activation="tanh", solver="sgd", verbose=True, max_iter=3000, early_stopping=True, learning_rate='adaptive')
-        else:
+        elif(algorithm == 'tree'):
             clf = tree.DecisionTreeClassifier()
+        elif(algorithm == 'forest'):
+            clf = RandomForestClassifier()
+        else:
+            print("Please choose valid Algortihm: tree, neural or forest. Setting Algorithm to forest...")
+            clf = RandomForestClassifier()
         x = []
         y = []
         for line in nnmovies:
