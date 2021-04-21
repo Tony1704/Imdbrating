@@ -5,11 +5,8 @@ from functools import reduce
 import database_connector
 import movie
 import numpy as np
-from sklearn.neural_network import MLPRegressor, MLPClassifier
-from sklearn.datasets import make_regression
+from sklearn.neural_network import MLPRegressor
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report
-from sklearn import preprocessing
 import ratingPredictor
 
 

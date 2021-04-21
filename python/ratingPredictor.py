@@ -1,17 +1,11 @@
 import sys
 import time
 from functools import reduce
-
-from networkx.drawing.tests.test_pylab import plt
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
 from sklearn import tree
 from sklearn.ensemble import RandomForestClassifier
-from sklearn import svm
 from sklearn.preprocessing import StandardScaler
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.neighbors import KNeighborsClassifier
-
 import database_connector
 from sklearn import preprocessing
 import numpy as np
