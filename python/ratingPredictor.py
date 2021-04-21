@@ -25,7 +25,7 @@ class ratingPredictor:
         nnmovies = self._prepareMoviesForNN()
         ratings = self._getYValues()
         if (algorithm == 'neural'):
-            clf = MLPClassifier(hidden_layer_sizes=(100,100,100,100), activation="tanh", solver="sgd", verbose=True, max_iter=3000, early_stopping=True, learning_rate='adaptive')
+            clf = MLPClassifier(hidden_layer_sizes=(157,157,100,100), activation="tanh", solver="sgd", verbose=False, max_iter=300, early_stopping=True, learning_rate='adaptive')
         elif(algorithm == 'tree'):
             clf = tree.DecisionTreeClassifier()
         elif(algorithm == 'forest'):
